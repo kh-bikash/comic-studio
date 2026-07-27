@@ -6,7 +6,6 @@ WORKDIR /app
 
 # Install system deps for Pillow
 RUN apt-get update && apt-get install -y \
-    libzbar0 \
     libgl1 \
     libglib2.0-0 \
     fonts-liberation \
@@ -22,8 +21,9 @@ COPY . .
 # Create outputs directory
 RUN mkdir -p static/outputs
 
-# Expose port (Koyeb passes PORT via env)
-EXPOSE 8000
+# HuggingFace Spaces uses port 7860
+# Koyeb / local uses $PORT or 8000
+EXPOSE 7860
 
-# Start FastAPI server — reads $PORT from Koyeb env
-CMD uvicorn server:app --host 0.0.0.0 --port ${PORT:-8000}
+# Start FastAPI — PORT env var: 7860 on HF Spaces, custom on Koyeb
+CMD uvicorn server:app --host 0.0.0.0 --port ${PORT:-7860}

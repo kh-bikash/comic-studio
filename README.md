@@ -1,3 +1,13 @@
+---
+title: Cosmic Comic Studio
+emoji: 🚀
+colorFrom: pink
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: true
+---
+
 # 🚀 Cosmic Comic Studio
 
 A beautiful AI-powered children's storybook comic creator. Generate illustrated comic book pages instantly using free serverless GPU acceleration — no model downloads, 0% CPU load.
