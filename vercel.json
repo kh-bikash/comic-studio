@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "routes": [
+    { "src": "/", "dest": "/static/index.html" },
+    { "src": "/static/(.*)", "dest": "/static/$1" }
+  ]
+}

@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cosmic Comic Studio - Create Magical Children's Books</title>
-    <!-- Google Fonts: Outfit, Plus Jakarta Sans, Comic Neue -->
+    <meta name="description" content="Create beautiful AI-powered children's comic books instantly. No downloads, no setup — powered by Pollinations.ai free GPU.">
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- jsPDF for client-side PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- Custom Style Sheet -->
     <link rel="stylesheet" href="/static/style.css">
 </head>
@@ -24,7 +27,7 @@
                 </div>
                 <div class="title-group">
                     <h1>COSMIC COMIC STUDIO</h1>
-                    <p class="subtitle">Craft magical children's storybooks with serverless GPU acceleration</p>
+                    <p class="subtitle">Craft magical children's storybooks powered by free serverless GPU</p>
                 </div>
             </div>
             <div class="header-actions">
@@ -32,26 +35,26 @@
                     <i class="fa-solid fa-cloud-check"></i> <span id="autosave-text">Auto-saved</span>
                 </div>
                 <button type="button" class="reset-story-btn" id="reset-story-btn" title="Start a fresh new comic book">
-                    <i class="fa-solid fa-rotate-left"></i> Start New Story
+                    <i class="fa-solid fa-rotate-left"></i> New Story
                 </button>
             </div>
         </header>
 
         <!-- Main Workspace Row -->
         <div class="workspace-row">
-            
+
             <!-- Left Side Panel Inputs -->
             <aside class="sidebar-inputs">
                 <!-- Engine Info Card -->
                 <div class="panel-card-info">
-                    <h3><i class="fa-solid fa-bolt icon-pink"></i> Cloud Engine: Serverless GPU</h3>
-                    <p>No model downloads required! Fast generation in seconds with 0% local CPU load.</p>
+                    <h3><i class="fa-solid fa-bolt icon-pink"></i> Engine: Pollinations.ai (Free GPU)</h3>
+                    <p>Images generated in-browser — no uploads, 0% server load, works 100% client-side.</p>
                 </div>
 
-                <!-- Page Navigator Sidebar Card -->
+                <!-- Page Navigator -->
                 <div class="settings-card">
                     <div class="page-nav-header">
-                        <h3><i class="fa-solid fa-book-bookmark icon-pink"></i> Storybook Pages</h3>
+                        <h3 style="margin-bottom:0;"><i class="fa-solid fa-book-bookmark icon-pink"></i> Storybook Pages</h3>
                     </div>
                     <div id="page-list-container" class="page-list-container">
                         <!-- Pages dynamically rendered here -->
@@ -62,7 +65,7 @@
                 </div>
 
                 <form id="comic-form">
-                    <!-- Cover Page Toggle Switch -->
+                    <!-- Cover Page Toggle -->
                     <div class="settings-card" style="border-color: rgba(236, 72, 153, 0.3); background: #fff1f2;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <label for="cover-toggle" style="font-weight: 700; cursor: pointer; color: var(--color-pink); display: flex; align-items: center; gap: 8px; margin: 0; font-size: 0.95em;">
@@ -83,9 +86,8 @@
                     </div>
 
                     <!-- Panel Accordions -->
-                    <div class="panel-accordion-group" id="panels-accordion-container">
-                        
-                        <!-- Panel 1 -->
+                    <div id="panels-accordion-container">
+
                         <div class="accordion active" id="acc-panel-1">
                             <div class="accordion-header" onclick="toggleAccordion(1)">
                                 <span><i class="fa-solid fa-star icon-pink"></i> Panel 1 (Intro Scene)</span>
@@ -94,16 +96,15 @@
                             <div class="accordion-content">
                                 <div class="input-group">
                                     <label for="p1-prompt">Illustration Prompt:</label>
-                                    <textarea id="p1-prompt" rows="2" placeholder="Describe scene 1 (e.g. 'A cute happy green dragon flying in a starry sky over a small village')">A cute happy green dragon flying in a starry sky over a small village</textarea>
+                                    <textarea id="p1-prompt" rows="2" placeholder="Describe scene 1...">A cute happy green dragon flying in a starry sky over a small village</textarea>
                                 </div>
                                 <div class="input-group">
                                     <label for="p1-text">Narration Box Text:</label>
-                                    <input type="text" id="p1-text" value="Once upon a time, there was a little dragon who dreamed of flying to the stars..." placeholder="Enter narrative text at the bottom...">
+                                    <input type="text" id="p1-text" value="Once upon a time, there was a little dragon who dreamed of flying to the stars...">
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Panel 2 -->
                         <div class="accordion active" id="acc-panel-2">
                             <div class="accordion-header" onclick="toggleAccordion(2)">
                                 <span><i class="fa-solid fa-star icon-purple"></i> Panel 2 (The Discovery)</span>
@@ -112,16 +113,15 @@
                             <div class="accordion-content">
                                 <div class="input-group">
                                     <label for="p2-prompt">Illustration Prompt:</label>
-                                    <textarea id="p2-prompt" rows="2" placeholder="Describe scene 2 (e.g. 'A cute green dragon landing in a grassy meadow covered in giant glowing flowers')">A cute green dragon landing in a grassy meadow covered in giant glowing flowers</textarea>
+                                    <textarea id="p2-prompt" rows="2" placeholder="Describe scene 2...">A cute green dragon landing in a grassy meadow covered in giant glowing flowers</textarea>
                                 </div>
                                 <div class="input-group">
                                     <label for="p2-text">Narration Box Text:</label>
-                                    <input type="text" id="p2-text" value="One day, he discovered a secret magical garden where the flowers glowed in the dark." placeholder="Enter narrative text at the bottom...">
+                                    <input type="text" id="p2-text" value="One day, he discovered a secret magical garden where the flowers glowed in the dark.">
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Panel 3 -->
                         <div class="accordion" id="acc-panel-3">
                             <div class="accordion-header" onclick="toggleAccordion(3)">
                                 <span><i class="fa-solid fa-star icon-blue"></i> Panel 3 (The Climax)</span>
@@ -130,16 +130,15 @@
                             <div class="accordion-content">
                                 <div class="input-group">
                                     <label for="p3-prompt">Illustration Prompt:</label>
-                                    <textarea id="p3-prompt" rows="2" placeholder="Describe the climax (e.g. 'A cute green dragon sharing glowing fruit with a friendly blue owl on a branch')"></textarea>
+                                    <textarea id="p3-prompt" rows="2" placeholder="Describe the climax..."></textarea>
                                 </div>
                                 <div class="input-group">
                                     <label for="p3-text">Narration Box Text:</label>
-                                    <input type="text" id="p3-text" placeholder="Enter narrative text at the bottom...">
+                                    <input type="text" id="p3-text" placeholder="Enter narrative text...">
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Panel 4 -->
                         <div class="accordion" id="acc-panel-4">
                             <div class="accordion-header" onclick="toggleAccordion(4)">
                                 <span><i class="fa-solid fa-star icon-yellow"></i> Panel 4 (Happy Ending)</span>
@@ -148,21 +147,21 @@
                             <div class="accordion-content">
                                 <div class="input-group">
                                     <label for="p4-prompt">Illustration Prompt:</label>
-                                    <textarea id="p4-prompt" rows="2" placeholder="Describe the ending (e.g. 'A cute green dragon curling up to sleep under a large glowing leaf')"></textarea>
+                                    <textarea id="p4-prompt" rows="2" placeholder="Describe the ending..."></textarea>
                                 </div>
                                 <div class="input-group">
                                     <label for="p4-text">Narration Box Text:</label>
-                                    <input type="text" id="p4-text" placeholder="Enter narrative text at the bottom...">
+                                    <input type="text" id="p4-text" placeholder="Enter narrative text...">
                                 </div>
                             </div>
                         </div>
 
                     </div>
 
-                    <!-- Page Layout & Design Settings -->
+                    <!-- Page Settings -->
                     <div class="settings-card">
                         <h3><i class="fa-solid fa-sliders icon-blue"></i> Page Options</h3>
-                        
+
                         <div class="input-group">
                             <label for="style-select">Art & Illustration Style:</label>
                             <select id="style-select">
@@ -199,77 +198,77 @@
                         </div>
                     </div>
 
-                    <!-- Generate Action Button -->
+                    <!-- Generate Button -->
                     <button type="submit" id="submit-btn" class="primary-button">
                         <i class="fa-solid fa-wand-magic-sparkles"></i> GENERATE COMIC PAGE
                     </button>
                 </form>
             </aside>
 
-            <!-- Right Side Interactive Canvas -->
+            <!-- Right Side Canvas -->
             <main class="canvas-container">
                 <div class="canvas-header">
                     <h2><i class="fa-solid fa-book-open icon-pink"></i> Storybook Canvas</h2>
-                    
-                    <!-- Page Flipping Controls -->
+
+                    <!-- Page Pagination -->
                     <div class="book-pagination" id="pagination-controls">
-                        <button type="button" id="prev-page-btn" class="nav-arrow-btn" title="Previous Page"><i class="fa-solid fa-chevron-left"></i></button>
-                        <span id="page-indicator" style="font-weight: 700; color: var(--text-primary); font-size: 0.9em; padding: 0 4px;">Page 1 of 1</span>
-                        <button type="button" id="next-page-btn" class="nav-arrow-btn" title="Next Page"><i class="fa-solid fa-chevron-right"></i></button>
+                        <button type="button" id="prev-page-btn" class="nav-arrow-btn"><i class="fa-solid fa-chevron-left"></i></button>
+                        <span id="page-indicator" style="font-weight: 700; color: var(--text-primary); font-size: 0.9em; padding: 0 6px;">Page 1 of 1</span>
+                        <button type="button" id="next-page-btn" class="nav-arrow-btn"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
 
                     <div class="actions-group">
                         <button type="button" id="download-btn" class="action-btn" disabled>
-                            <i class="fa-solid fa-download"></i> Save Page Image
+                            <i class="fa-solid fa-download"></i> Save PNG
                         </button>
                         <button type="button" id="download-pdf-btn" class="action-btn action-btn-pdf" disabled>
-                            <i class="fa-solid fa-file-pdf"></i> Download PDF Book
+                            <i class="fa-solid fa-file-pdf"></i> PDF Book
                         </button>
                         <button type="button" id="print-btn" class="action-btn" disabled>
-                            <i class="fa-solid fa-print"></i> Print Book
+                            <i class="fa-solid fa-print"></i> Print
                         </button>
                     </div>
                 </div>
 
                 <!-- Comic Display Area -->
                 <div class="comic-display-card" id="display-card">
-                    <!-- Default Placeholder -->
+                    <!-- Placeholder -->
                     <div class="placeholder-content" id="placeholder-box">
                         <div class="placeholder-icon">
                             <i class="fa-solid fa-palette"></i>
                         </div>
                         <h4>Your Comic Page Starts Here!</h4>
-                        <p>Customize the panel prompts on the left and click <b>Generate Comic Page</b> to create your artwork.</p>
-                        <span class="hint"><i class="fa-solid fa-shield-halved"></i> Your progress is auto-saved locally!</span>
+                        <p>Enter your panel prompts on the left and hit <b>Generate Comic Page</b> to create your artwork.</p>
+                        <span class="hint"><i class="fa-solid fa-shield-halved"></i> All work auto-saved in your browser</span>
                     </div>
 
-                    <!-- Loading Spinner -->
+                    <!-- Loader -->
                     <div class="loader-container" id="loader-box" style="display: none;">
                         <div class="cosmic-spinner"></div>
-                        <p class="loading-status">Generating Magic Storybook Page...</p>
-                        <p class="loading-subtitle">Calling serverless GPU cluster to generate illustrations & text overlays</p>
+                        <p class="loading-status" id="loader-status-text">Generating your storybook page...</p>
+                        <p class="loading-subtitle" id="loader-sub-text">Calling Pollinations.ai GPU cluster to generate illustrations...</p>
                     </div>
 
-                    <!-- Generated Image Output Wrapper -->
+                    <!-- Comic Image Wrapper -->
                     <div class="comic-img-wrapper" id="comic-img-wrapper" style="display: none;">
                         <img id="comic-img" class="comic-image" src="" alt="Generated Comic Book Page">
-                        <button type="button" class="zoom-overlay-btn" id="zoom-img-btn" title="Inspect full size">
-                            <i class="fa-solid fa-magnifying-glass-plus"></i> Inspect Image
+                        <button type="button" class="zoom-overlay-btn" id="zoom-img-btn">
+                            <i class="fa-solid fa-magnifying-glass-plus"></i> Inspect
                         </button>
                     </div>
                 </div>
 
-                <!-- Footer Status Bar -->
+                <!-- Status Bar -->
                 <div class="status-bar">
-                    <span id="status-text"><i class="fa-solid fa-circle-info" style="color: var(--color-violet);"></i> Ready to generate your storybook page.</span>
-                    <span style="font-size: 0.8em; color: var(--text-muted);"><i class="fa-solid fa-bolt"></i> Fast GPU Mode</span>
+                    <span id="status-text"><i class="fa-solid fa-circle-info" style="color: var(--color-violet);"></i> Ready. Enter prompts and click Generate.</span>
+                    <span style="font-size: 0.8em; color: var(--text-muted);"><i class="fa-solid fa-bolt"></i> Vercel + Pollinations.ai</span>
                 </div>
             </main>
 
         </div>
     </div>
 
-    <!-- Image Preview Modal -->
+    <!-- Preview Modal -->
     <div class="modal-backdrop" id="preview-modal" style="display: none;">
         <div class="modal-content">
             <button type="button" class="modal-close-btn" id="close-modal-btn"><i class="fa-solid fa-xmark"></i></button>
@@ -277,17 +276,14 @@
         </div>
     </div>
 
-    <!-- Script file -->
+    <!-- App Script -->
     <script src="/static/app.js"></script>
     <script>
-        function toggleAccordion(panelNum) {
-            const accordion = document.getElementById(`acc-panel-${panelNum}`);
-            if (accordion) {
-                accordion.classList.toggle('active');
-            }
+        function toggleAccordion(n) {
+            const el = document.getElementById(`acc-panel-${n}`);
+            if (el) el.classList.toggle('active');
         }
     </script>
-    <!-- Hidden template container for multi-page printing -->
-    <div id="print-book-container" style="display: none;"></div>
+    <div id="print-book-container" style="display:none;"></div>
 </body>
 </html>
