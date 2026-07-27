@@ -1,0 +1,17 @@
+# Python files — ignored by Vercel, kept for local dev
+app.py
+server.py
+generate_comic.py
+requirements.txt
+Procfile
+
+# Python runtime artifacts
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Large files
+panda_panel.png
+static/outputs/
