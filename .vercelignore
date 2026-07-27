@@ -1,8 +1,9 @@
-# Python files — ignored by Vercel, kept for local dev
+# Python files — used for Koyeb/local Docker deploy, ignored by Vercel
 app.py
 server.py
 generate_comic.py
 requirements.txt
+Dockerfile
 Procfile
 
 # Python runtime artifacts
@@ -12,6 +13,6 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Large files
+# Large binary files
 panda_panel.png
 static/outputs/
