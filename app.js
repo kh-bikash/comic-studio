@@ -20,20 +20,42 @@ function buildPollinationsUrl(prompt, width, height, seed, style) {
     return `https://image.pollinations.ai/prompt/${encoded}?width=${width}&height=${height}&seed=${seed}&nologo=true&private=true`;
 }
 
-// ── Load URL → Canvas (with CORS) ────────────────────────────
-function loadImageAsCanvas(url) {
+// ── Load URL → Canvas (CORS-safe via fetch → blob → canvas) ──
+async function loadImageAsCanvas(url) {
+    let objectUrl = null;
+    try {
+        // Try direct fetch first (works if Pollinations.ai sends CORS headers)
+        const res = await fetch(url, { mode: 'cors', cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const blob = await res.blob();
+        objectUrl = URL.createObjectURL(blob);
+    } catch (_) {
+        // Fallback: route through our Vercel CORS proxy (api/image.js)
+        try {
+            const proxyUrl = `/api/image?url=${encodeURIComponent(url)}`;
+            const pRes = await fetch(proxyUrl);
+            if (!pRes.ok) throw new Error(`Proxy HTTP ${pRes.status}`);
+            const blob = await pRes.blob();
+            objectUrl = URL.createObjectURL(blob);
+        } catch (proxyErr) {
+            throw new Error(`Failed to load image. ${proxyErr.message}`);
+        }
+    }
     return new Promise((resolve, reject) => {
         const img = new Image();
-        img.crossOrigin = 'anonymous';
         img.onload = () => {
+            URL.revokeObjectURL(objectUrl);
             const c = document.createElement('canvas');
             c.width = img.naturalWidth;
             c.height = img.naturalHeight;
             c.getContext('2d').drawImage(img, 0, 0);
             resolve(c);
         };
-        img.onerror = () => reject(new Error(`Failed to load image from API.`));
-        img.src = url;
+        img.onerror = () => {
+            if (objectUrl) URL.revokeObjectURL(objectUrl);
+            reject(new Error('Failed to render image on canvas.'));
+        };
+        img.src = objectUrl;
     });
 }
 
