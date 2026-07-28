@@ -1,8 +1,10 @@
 import os
 import sys
-from fastapi import FastAPI, HTTPException
+import requests
+import urllib.request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse, FileResponse, Response
 from pydantic import BaseModel
 from typing import List, Optional
 from PIL import Image, ImageDraw, ImageFont, ImageOps
@@ -26,6 +28,37 @@ STYLE_MODIFIERS = {
     "claymation": ", 3d clay model style, stop-motion animation, plasticine textures, cute clay figurine, studio lighting",
     "crayon": ", colored pencil drawing, crayon scribble texture, hand-drawn child sketch, warm colors"
 }
+
+
+@app.get("/api/image")
+def proxy_pollinations_image(url: str):
+    """Proxy Pollinations images locally so the browser can use them in Canvas."""
+    if not url.startswith("https://image.pollinations.ai/"):
+        raise HTTPException(status_code=403, detail="Only Pollinations.ai URLs are allowed")
+
+    try:
+        upstream = requests.get(
+            url,
+            headers={"User-Agent": "Mozilla/5.0 (compatible; CosmicComicStudio/1.0)"},
+            timeout=60,
+        )
+    except requests.RequestException as exc:
+        raise HTTPException(status_code=502, detail=f"Proxy fetch failed: {exc}") from exc
+
+    if not upstream.ok:
+        raise HTTPException(
+            status_code=upstream.status_code,
+            detail=f"Upstream returned {upstream.status_code}",
+        )
+
+    return Response(
+        content=upstream.content,
+        media_type=upstream.headers.get("content-type", "image/png"),
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Cache-Control": "public, max-age=86400",
+        },
+    )
 
 
 class PanelInput(BaseModel):
@@ -286,6 +319,25 @@ async def download_pdf_endpoint(req: PdfDownloadRequest):
     except Exception as e:
         import traceback
         traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ── CORS Image Proxy ──────────────────────────────────────────
+# Mirrors the Vercel api/image.js function so local dev works too
+@app.get("/api/image")
+async def proxy_image(url: str):
+    """Fetch an image from Pollinations.ai and return it with CORS headers."""
+    if not url.startswith("https://image.pollinations.ai/"):
+        raise HTTPException(status_code=403, detail="Only Pollinations.ai URLs allowed")
+    try:
+        resp = requests.get(url, timeout=30, headers={"User-Agent": "CosmicComicStudio/1.0"})
+        resp.raise_for_status()
+        return Response(
+            content=resp.content,
+            media_type=resp.headers.get("content-type", "image/png"),
+            headers={"Access-Control-Allow-Origin": "*", "Cache-Control": "public, max-age=3600"}
+        )
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
